@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Calculate Energy</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+/* SAME STYLES AS DASHBOARD */
+body{background:#f4f7f6;font-family:Inter;margin:0}
+.dashboard{display:flex;height:100vh}
+.sidebar{
+    width:220px;
+    background:#1f9d55;
+    color:#fff;
+    padding:20px;
+    display:flex;
+    flex-direction:column;
+}
+.sidebar a{
+    color:#fff;
+    text-decoration:none;
+    padding:10px;
+    border-radius:8px;
+    margin-bottom:10px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+}
+.sidebar a.active,
+.sidebar a:hover{background:rgba(255,255,255,.2)}
+.sidebar .logout{
+    margin-top:auto;
+}
+.main{flex:1;padding:24px}
+.section{background:#fff;padding:20px;border-radius:14px;box-shadow:0 8px 20px rgba(0,0,0,.05)}
+input,button{padding:10px;border-radius:8px;border:1px solid #e5e7eb;width:100%;margin-bottom:12px}
+button{background:#22c55e;color:#fff;font-weight:600;border:none;cursor:pointer}
+button:hover{background:#16a34a}
+</style>
+</head>
+
+<body>
+<div class="dashboard">
+
+<div class="sidebar">
+<h2>EcoPanel</h2>
+<a href="dashboard.html">Dashboard</a>
+<a class="active">Calculate</a>
+<a href="analytics.html">Analytics</a>
+<a href="history.html">History</a>
+<a href="ai-insights.html">AI Insights</a>
+
+<a class="logout" href="index.html">
+    <span class="material-icons">logout</span> Logout
+</a>
+</div>
+
+<div class="main">
+<h2>Energy Calculator</h2>
+
+<div class="section">
+    <label>No. of Lights</label>
+<input type="number" id="lights" placeholder="Enter lights">
+
+<label>No. of Fans</label>
+<input type="number" id="fans" placeholder="Enter fans">
+
+<label>No. of ACs</label>
+<input type="number" id="ac" placeholder="Enter ACs">
+
+<label>Usage Hours</label>
+<input type="number" id="hours" placeholder="Hours per day">
+
+
+<button id="calculateBtn" onclick="calculateAndSave()">Calculate Energy</button>
+
+<p id="consumption"><strong>Estimated Consumption:</strong> -</p>
+<p id="cost"><strong>Estimated Cost:</strong> -</p>
+<p id="energy-saved"><strong>Energy Saved:</strong> -</p>
+<p id="wastage"><strong>Wastage Detected:</strong> -</p>
+
+</div>
+</div>
+</div>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="app.js"></script>calculate.html
+</body>
+</html>
