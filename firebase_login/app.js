@@ -171,3 +171,4 @@ function loadHistory() {
 // --- Call on dashboard/history load ---
 if (document.getElementById("todayConsumption")) loadDashboard();
 if (document.querySelector("table")) loadHistory();
+
