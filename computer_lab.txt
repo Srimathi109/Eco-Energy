@@ -1,0 +1,124 @@
+#include <WiFi.h>
+#include <HTTPClient.h>
+#include <WiFiClientSecure.h>
+#include <ArduinoJson.h>
+#include "time.h"
+
+const char* ssid = "Wokwi-GUEST";
+const char* password = "";
+
+const char* projectId = "ecoenergy-eb878";
+const char* apiKey = "AIzaSyAYXC6A67bh-SR8OhB1K5w6fwRYRCWgklw";
+
+String labDoc = "lab1";
+String labName = "Computer Lab";
+String uid = "";
+
+WiFiClientSecure client;
+HTTPClient https;
+
+// NTP
+const char* ntpServer = "pool.ntp.org";
+const long gmtOffset_sec = 0;
+const int daylightOffset_sec = 0;
+
+void setup() {
+  Serial.begin(115200);
+
+  WiFi.begin(ssid, password);
+  Serial.print("Connecting WiFi");
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(300);
+    Serial.print(".");
+  }
+  Serial.println("\nWiFi Connected");
+
+  client.setInsecure();
+
+  // Initialize time
+  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
+  Serial.println("Time synced");
+
+  fetchUID();
+}
+
+void loop() {
+  if (uid != "") {
+    sendEnergy();
+  } else {
+    Serial.println("UID not available yet");
+  }
+  delay(10000);
+}
+
+String getTimestamp() {
+  struct tm timeinfo;
+  if (!getLocalTime(&timeinfo)) {
+    return "1970-01-01T00:00:00Z";
+  }
+
+  char buffer[30];
+  strftime(buffer, sizeof(buffer), "%Y-%m-%dT%H:%M:%SZ", &timeinfo);
+  return String(buffer);
+}
+
+void fetchUID() {
+  String url =
+    "https://firestore.googleapis.com/v1/projects/" +
+    String(projectId) +
+    "/databases/(default)/documents/activeLabs/" +
+    labDoc + "?key=" + apiKey;
+
+  https.begin(client, url);
+  int code = https.GET();
+
+  Serial.print("HTTP code: ");
+  Serial.println(code);
+
+  if (code == 200) {
+    String payload = https.getString();
+    Serial.println(payload);
+
+    DynamicJsonDocument doc(512);
+    deserializeJson(doc, payload);
+
+    uid = doc["fields"]["uid"]["stringValue"].as<String>();
+
+    if (uid != "") {
+      Serial.println("UID fetched successfully");
+    }
+  } else {
+    Serial.println("UID fetch failed");
+  }
+
+  https.end();
+}
+
+void sendEnergy() {
+  float energy = random(20, 60) / 10.0;
+  float cost = energy * 10;
+  String timestamp = getTimestamp();
+
+  String url =
+    "https://firestore.googleapis.com/v1/projects/" +
+    String(projectId) +
+    "/databases/(default)/documents/EnergyRecords?key=" + apiKey;
+
+  https.begin(client, url);
+  https.addHeader("Content-Type", "application/json");
+
+  String body =
+    "{ \"fields\": {"
+    "\"uid\": {\"stringValue\": \"" + uid + "\"},"
+    "\"lab\": {\"stringValue\": \"" + labName + "\"},"
+    "\"energy\": {\"doubleValue\": " + String(energy) + "},"
+    "\"cost\": {\"doubleValue\": " + String(cost) + "},"
+    "\"timestamp\": {\"timestampValue\": \"" + timestamp + "\"}"
+    "} }";
+
+  int code = https.POST(body);
+  Serial.print("Energy POST code: ");
+  Serial.println(code);
+
+  https.end();
+}
