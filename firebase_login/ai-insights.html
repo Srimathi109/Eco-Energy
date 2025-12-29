@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AI Insights</title>
+
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+body { background:#f4f7f6; font-family:Inter; margin:0 }
+.dashboard { display:flex; height:100vh }
+.sidebar {
+  width:220px;
+  background:#1f9d55;
+  color:#fff;
+  padding:20px;
+  display:flex;
+  flex-direction:column;
+}
+.sidebar a {
+  color:#fff;
+  text-decoration:none;
+  padding:10px;
+  border-radius:8px;
+  margin-bottom:10px;
+  display:flex;
+  gap:8px;
+}
+.sidebar a.active { background:rgba(255,255,255,.2); }
+.sidebar .logout { margin-top:auto; }
+
+.main { flex:1; padding:24px; }
+.section {
+  background:#fff;
+  padding:20px;
+  border-radius:14px;
+}
+.loading { color:#555; font-style:italic; }
+</style>
+</head>
+
+<body>
+<div class="dashboard">
+
+<div class="sidebar">
+  <h2>EcoPanel</h2>
+  <a href="dashboard.html"><span class="material-icons">dashboard</span>Dashboard</a>
+  <a href="calculate.html"><span class="material-icons">calculate</span>Calculate</a>
+  <a href="analytics.html"><span class="material-icons">analytics</span>Analytics</a>
+  <a href="history.html"><span class="material-icons">history</span>History</a>
+  <a class="active"><span class="material-icons">psychology</span>AI Insights</a>
+  <a class="logout" href="index.html"><span class="material-icons">logout</span>Logout</a>
+</div>
+
+<div class="main">
+<div class="section">
+  <h3>🟢 Safe Labs</h3>
+  <div id="safeLabs" class="loading">Analyzing...</div>
+</div>
+
+<br>
+
+<div class="section">
+  <h3>🔴 Abnormal Activity</h3>
+  <div id="abnormalLabs" class="loading">Analyzing...</div>
+</div>
+
+<br>
+
+<div class="section">
+  <h3>🔵 Efficient Labs</h3>
+  <div id="efficientLabs" class="loading">Analyzing...</div>
+</div>
+
+<br>
+
+<div class="section">
+  <h3>⚫ Zero Consumption Labs</h3>
+  <div id="zeroLabs" class="loading">Analyzing...</div>
+</div>
+
+</div>
+
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="app.js"></script>
+<script type="module">
+import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
+
+const API_KEY = "AIzaSyB8JN2x_pVyFH9rAI3WM9rnv4d7ADcpRpU";
+const genAI = new GoogleGenerativeAI(API_KEY);
+
+const db = firebase.firestore();
+
+firebase.auth().onAuthStateChanged(async (user) => {
+  if (!user) return window.location.href = "index.html";
+
+  // ✅ Call AI insights here
+  loadAIInsights(user);
+});
+
+async function loadAIInsights(user) {
+  const safeDiv = document.getElementById("safeLabs");
+  const abnormalDiv = document.getElementById("abnormalLabs");
+  const efficientDiv = document.getElementById("efficientLabs");
+  const zeroDiv = document.getElementById("zeroLabs");
+
+  try {
+    const snap = await db.collection("EnergyRecords")
+      .where("uid", "==", user.uid)
+      .orderBy("timestamp", "desc")
+      .limit(40)
+      .get();
+
+    const records = snap.docs.map(d => d.data());
+
+    // Group by lab
+    const labData = {};
+    records.forEach(r => {
+      if (!labData[r.lab]) labData[r.lab] = [];
+      labData[r.lab].push(r);
+    });
+
+    const prompt = `
+You are an AI energy auditor.
+
+Classify EACH LAB into:
+1. SAFE – normal stable usage
+2. ABNORMAL – spikes, irregular or excessive
+3. ZERO – near-zero consumption (power OFF / idle)
+4. EFFICIENT – lowest energy compared to others
+
+Return ONLY valid JSON:
+
+{
+  "safe": [{ "lab": "", "reason": "" }],
+  "abnormal": [{ "lab": "", "reason": "" }],
+  "zero": [{ "lab": "", "reason": "" }],
+  "efficient": [{ "lab": "", "reason": "" }]
+}
+
+Energy data:
+${JSON.stringify(labData, null, 2)}
+`;
+
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const result = await model.generateContent(prompt);
+    const text = result.response.text();
+
+    const json = JSON.parse(text.slice(text.indexOf("{"), text.lastIndexOf("}") + 1));
+
+    renderList(safeDiv, json.safe, "No safe labs detected");
+    renderList(abnormalDiv, json.abnormal, "No abnormal activity");
+    renderList(zeroDiv, json.zero, "No labs are fully OFF");
+    renderList(efficientDiv, json.efficient, "Efficiency not determined");
+
+    // 🔥 SAVE AI SUMMARY FOR DASHBOARD
+    await db.collection("AIInsights").doc(user.uid).set({
+      updatedAt: new Date(),
+      summary: json
+    });
+
+  } catch (err) {
+    console.error(err);
+    safeDiv.innerText = abnormalDiv.innerText =
+    zeroDiv.innerText = efficientDiv.innerText =
+      "Error generating AI insights";
+  }
+}
+
+function renderList(div, items, emptyMsg) {
+  div.classList.remove("loading");
+  if (!items || items.length === 0) {
+    div.innerText = emptyMsg;
+    return;
+  }
+  div.innerHTML = items.map(i =>
+    `<b>${i.lab}</b>: ${i.reason}`
+  ).join("<br><br>");
+}
+
+</script>
+
+</body>
+</html>

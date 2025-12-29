@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>History</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+body{background:#f4f7f6;font-family:Inter;margin:0}
+.dashboard{display:flex;height:100vh}
+.sidebar{width:220px;background:#1f9d55;color:#fff;padding:20px; display:flex; flex-direction:column;}
+.sidebar h2{margin-bottom:30px;}
+.sidebar a{
+  color:#fff;
+  text-decoration:none;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:10px;
+  border-radius:8px;
+  margin-bottom:10px;
+}
+
+.sidebar a.active{background:rgba(255,255,255,.2);}
+.sidebar .logout{margin-top:auto;}
+.main{flex:1;padding:24px; overflow-y:auto;}
+.section{background:#fff;padding:20px;border-radius:14px}
+table{width:100%;border-collapse:collapse}
+th,td{padding:10px;border-bottom:1px solid #e5e7eb}
+th{color:#374151}
+</style>
+</head>
+
+<body>
+<div class="dashboard">
+<div class="sidebar">
+  <h2>EcoPanel</h2>
+  <a href="dashboard.html"><span class="material-icons">dashboard</span>Dashboard</a>
+  <a href="calculate.html"><span class="material-icons">calculate</span>Calculate</a>
+  <a href="analytics.html"><span class="material-icons">analytics</span>Analytics</a>
+  <a class="active"><span class="material-icons">history</span>History</a>
+  <a href="ai-insights.html"><span class="material-icons">psychology</span>AI Insights</a>
+
+  <a class="logout" href="index.html">
+    <span class="material-icons">logout</span>Logout
+  </a>
+</div>
+
+<div class="main">
+<h2>Usage History</h2>
+<div class="section">
+<table>
+  <thead>
+      <tr>
+        <th>Date</th>
+        <th>Time</th>
+        <th>Lab</th>        <!-- Added Lab column -->
+        <th>Energy</th>
+        <th>Cost</th>
+      </tr>
+    </thead>
+    <tbody id="historyTable"></tbody>
+</table>
+</div>
+</div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
