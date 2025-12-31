@@ -19,3 +19,4 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
+genai.configure(api_key="AIzaSyB8JN2x_pVyFH9rAI3WM9rnv4d7ADcpRpU")
