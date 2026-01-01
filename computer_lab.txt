@@ -3,6 +3,8 @@
 #include <WiFiClientSecure.h>
 #include <ArduinoJson.h>
 #include "time.h"
+// Sample UID:
+//tCVl8d9VeqREogzokDq40RY37Nz2
 
 const char* ssid = "Wokwi-GUEST";
 const char* password = "";
