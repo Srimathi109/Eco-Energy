@@ -271,7 +271,7 @@ function loadDailyAnalytics(user) {
         }
       });
     })
-    .catch(err => console.error("Daily Analytics error:", err));
+    .catch(err => console.error("Daily Analytics error:", err));  
 }
 
 // Auto-refresh daily chart
