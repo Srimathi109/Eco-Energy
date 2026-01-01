@@ -7,6 +7,39 @@ const firebaseConfig = {
   appId: "1:340357568412:web:8819af8a2d2452db6f5a59",
   measurementId: "G-9QQY2CKF68"
 };
+// Global variables
+let currentUser = null;
+let selectedLab = "";
+
+const labFactors = { // Consumption weights
+  "Computer Lab": 1.0,
+  "Electronics Lab": 0.7,
+  "Physics Lab": 0.5,
+  "Chemistry Lab": 0.6
+};
+
+function parseTimestamp(d) {
+  // Firestore SDK Timestamp
+  if (d.timestamp?.toDate) return d.timestamp.toDate();
+
+  // Arduino REST API ISO string
+  if (d.timestamp?.timestampValue) return new Date(d.timestamp.timestampValue);
+  // fallback
+  return null;
+}
+
+const labSelect = document.getElementById("labFilter");
+
+if (labSelect) {
+  labSelect.addEventListener("change", (e) => {
+    selectedLab = e.target.value;
+
+    // Reload analytics when lab changes
+    loadDailyAnalytics(currentUser);
+    loadWeeklyAnalytics(currentUser, "weeklyChart");
+    loadMonthlyAnalytics(currentUser);
+  });
+}
 
 // Firebase initialization
 const app = firebase.initializeApp(firebaseConfig);
@@ -194,25 +227,38 @@ let monthlyChartInstance;
 
 // ================= DASHBOARD CHARTS =================
 function loadDailyAnalytics(user) {
-  const start = new Date();
-  start.setHours(0,0,0,0);
+  const ctx = document.getElementById("dailyChart").getContext("2d");
 
   db.collection("EnergyRecords")
     .where("uid", "==", user.uid)
-    .where("timestamp", ">=", firebase.firestore.Timestamp.fromDate(start))
     .get()
     .then(snapshot => {
       let total = 0;
-      snapshot.forEach(doc => total += doc.data().energy || 0);
+      const factor = labFactors[selectedLab] || 1;
 
-      const ctx = document.getElementById("dailyChart").getContext("2d");
+      snapshot.forEach(doc => {
+        const d = doc.data();
+
+        // Lab filter
+        if (selectedLab && d.lab !== selectedLab) return;
+
+        const ts = parseTimestamp(d);
+        if (!ts) return;
+
+        // Only last 24 hours
+        const start = new Date();
+        start.setHours(start.getHours() - 24);
+        if (ts < start) return;
+
+        total += (d.energy || 0) * factor;
+      });
 
       if (dailyChartInstance) dailyChartInstance.destroy();
 
       dailyChartInstance = new Chart(ctx, {
         type: "bar",
         data: {
-          labels: ["Today"],
+          labels: ["Recent Energy"],
           datasets: [{
             label: "Energy (kWh)",
             data: [total],
@@ -228,25 +274,31 @@ function loadDailyAnalytics(user) {
     .catch(err => console.error("Daily Analytics error:", err));
 }
 
+// Auto-refresh daily chart
+setInterval(() => {
+  if (currentUser) loadDailyAnalytics(currentUser);
+}, 15000); // every 15s
+
 function loadWeeklyAnalytics(user, chartId) {
   const canvas = document.getElementById(chartId);
   if (!canvas) return;
-
-  const start = new Date();
-  start.setDate(start.getDate() - 6);
 
   const days = {Mon:0,Tue:0,Wed:0,Thu:0,Fri:0,Sat:0,Sun:0};
 
   db.collection("EnergyRecords")
     .where("uid", "==", user.uid)
-    .where("timestamp", ">=", firebase.firestore.Timestamp.fromDate(start))
-    .orderBy("timestamp", "asc")
     .get()
     .then(snapshot => {
       snapshot.forEach(doc => {
         const d = doc.data();
-        const day = d.timestamp.toDate().toLocaleDateString("en-US",{weekday:"short"});
-        days[day] += Number(d.energy);
+
+        if (selectedLab && d.lab !== selectedLab) return;
+
+        const ts = parseTimestamp(d);
+        if (!ts) return;
+
+        const day = ts.toLocaleDateString("en-US",{weekday:"short"});
+        days[day] += (d.energy || 0) * (labFactors[selectedLab] || 1);
       });
 
       if (weeklyChartInstance) weeklyChartInstance.destroy();
@@ -272,7 +324,8 @@ function loadWeeklyAnalytics(user, chartId) {
           scales:{y:{beginAtZero:true}}
         }
       });
-    });
+    })
+    .catch(err => console.error("Weekly Analytics error:", err));
 }
 
 function loadMonthlyAnalytics(user) {
@@ -281,10 +334,17 @@ function loadMonthlyAnalytics(user) {
     .get()
     .then(snapshot => {
       const months = {};
+
       snapshot.forEach(doc => {
         const d = doc.data();
-        const m = d.timestamp.toDate().toLocaleString("en-US",{month:"short",year:"numeric"});
-        months[m] = (months[m] || 0) + d.energy;
+
+        if (selectedLab && d.lab !== selectedLab) return;
+
+        const ts = parseTimestamp(d);
+        if (!ts) return;
+
+        const monthLabel = ts.toLocaleString("en-US",{month:"short",year:"numeric"});
+        months[monthLabel] = (months[monthLabel] || 0) + (d.energy || 0) * (labFactors[selectedLab] || 1);
       });
 
       if (monthlyChartInstance) monthlyChartInstance.destroy();
@@ -299,9 +359,13 @@ function loadMonthlyAnalytics(user) {
             backgroundColor:"#22c55e"
           }]
         },
-        options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}
+        options:{
+          plugins:{legend:{display:false}},
+          scales:{y:{beginAtZero:true}}
+        }
       });
-    });
+    })
+    .catch(err => console.error("Monthly Analytics error:", err));
 }
 
 // ================= AI INSIGHTS =================
@@ -372,6 +436,8 @@ function loadAIInsights(user) {
 // ================= AUTH STATE =================
 auth.onAuthStateChanged(user => {
   if (!user) return;
+  currentUser = user;
+  console.log("Logged-in UID:", user.uid);
   db.collection("activeLabs").doc("lab1").set({
     uid: user.uid,
     lab: "Computer Lab"
@@ -405,3 +471,4 @@ auth.onAuthStateChanged(user => {
     loadAIInsights(user);
   }
 });
+
