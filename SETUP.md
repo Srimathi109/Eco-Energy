@@ -162,3 +162,4 @@ For production, you can deploy to:
 
 Make sure to configure Firebase security rules for production use.
 
+

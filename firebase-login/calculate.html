@@ -618,7 +618,7 @@ input[type="number"]:hover{
         </button>
 
         <!-- Popup message -->
-        <div id="popup" class="result-popup" style="display:none;"></div>
+        <div id="popup" class="result-popup"></div>
       </div>
 
       <!-- Result Section -->
@@ -678,101 +678,6 @@ function toggleSidebar(){
   const sidebar = document.querySelector('.sidebar');
   sidebar.classList.toggle('collapsed');
 }
-
-// Lab Selection
-let selectedLabValue = '';
-
-function selectLab(labName){
-  selectedLabValue = labName;
-  document.getElementById('lab').value = labName;
-  
-  // Update card styles
-  document.querySelectorAll('.lab-card').forEach(card => {
-    card.classList.remove('selected');
-    if(card.dataset.lab === labName){
-      card.classList.add('selected');
-    }
-  });
-  
-  updatePreview();
-}
-
-// Real-time Preview
-function updatePreview(){
-  const kwh = parseFloat(document.getElementById('kwh').value) || 0;
-  const lab = selectedLabValue;
-  
-  if(kwh > 0 && lab){
-    const cost = (kwh * 10).toFixed(2);
-    document.getElementById('resultEnergy').textContent = kwh.toFixed(2);
-    document.getElementById('resultCost').textContent = cost;
-    document.getElementById('breakdownEnergy').textContent = kwh.toFixed(2);
-    document.getElementById('breakdownTotal').textContent = '₹' + cost;
-    document.getElementById('resultSection').style.display = 'block';
-  } else {
-    document.getElementById('resultSection').style.display = 'none';
-  }
-}
-
-// Load Recent Calculations
-function loadRecentCalculations(){
-  const user = firebase.auth().currentUser;
-  if(!user) return;
-  
-  const db = firebase.firestore();
-  const recentList = document.getElementById('recentList');
-  const recentSection = document.getElementById('recentSection');
-  
-  db.collection('EnergyRecords')
-    .where('uid', '==', user.uid)
-    .orderBy('timestamp', 'desc')
-    .limit(5)
-    .get()
-    .then(snapshot => {
-      if(snapshot.empty){
-        recentSection.style.display = 'none';
-        return;
-      }
-      
-      recentSection.style.display = 'block';
-      recentList.innerHTML = '';
-      
-      snapshot.forEach(doc => {
-        const data = doc.data();
-        const timestamp = data.timestamp?.toDate ? data.timestamp.toDate() : new Date();
-        const lab = data.lab || 'Unknown Lab';
-        const energy = data.energy || data.kwh || 0;
-        const cost = data.cost || (energy * 10);
-        
-        const item = document.createElement('div');
-        item.className = 'recent-item';
-        item.innerHTML = `
-          <div class="recent-item-info">
-            <div class="recent-item-lab">${lab}</div>
-            <div class="recent-item-details">${timestamp.toLocaleDateString()} • ${timestamp.toLocaleTimeString()}</div>
-          </div>
-          <div class="recent-item-value">
-            <div class="amount">₹${parseFloat(cost).toFixed(2)}</div>
-            <div class="energy">${parseFloat(energy).toFixed(2)} kWh</div>
-          </div>
-        `;
-        recentList.appendChild(item);
-      });
-    })
-    .catch(err => {
-      console.error('Error loading recent calculations:', err);
-      recentSection.style.display = 'none';
-    });
-}
-
-// Initialize on page load
-document.addEventListener('DOMContentLoaded', function(){
-  firebase.auth().onAuthStateChanged(user => {
-    if(user){
-      loadRecentCalculations();
-    }
-  });
-});
 </script>
 
 <!-- Firebase -->
