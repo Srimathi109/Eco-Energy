@@ -102,45 +102,84 @@ document.querySelectorAll(".logout").forEach(btn => {
 
 // ================= CALCULATE & SAVE =================
 async function calculateAndSave() {
-  const kwh = parseFloat(document.getElementById('kwh').value);
-  const lab = document.getElementById('lab').value;
+  const kwhInput = document.getElementById('kwh');
+  const labInput = document.getElementById('lab');
   const popup = document.getElementById('popup');
+  const calculateBtn = document.getElementById('calculateBtn');
 
-  // Validate inputs
-  if (isNaN(kwh) || kwh <= 0 || !lab) {
-    popup.textContent = "Please enter valid energy and select a lab!";
-    popup.className = "result-popup error";
-    popup.style.display = "block";
+  if (!kwhInput || !labInput || !popup || !calculateBtn) {
+    console.error('Required elements not found');
+    alert('Error: Page elements not found. Please refresh the page.');
     return;
   }
 
-  // Example calculation: cost = 10 ₹ per kWh
-  const cost = (kwh * 10).toFixed(2);
+  const kwh = parseFloat(kwhInput.value);
+  const lab = labInput.value;
 
-  document.getElementById('consumption').textContent = `Energy Consumed: ${kwh} kWh`;
-  document.getElementById('cost').textContent = `Total Cost: ₹ ${cost}`;
+  // Validate inputs
+  if (isNaN(kwh) || kwh <= 0 || !lab) {
+    popup.innerHTML = '<span class="material-icons">error</span>Please enter valid energy and select a lab!';
+    popup.className = "result-popup error";
+    popup.style.display = "flex";
+    return;
+  }
+
+  // Disable button during save
+  calculateBtn.disabled = true;
+  calculateBtn.innerHTML = '<span class="material-icons">hourglass_empty</span><span>Saving...</span>';
+
+  // Example calculation: cost = 10 ₹ per kWh
+  const cost = parseFloat((kwh * 10).toFixed(2));
+  const energy = kwh;
 
   try {
     const user = firebase.auth().currentUser;
     if (!user) throw new Error("User not logged in");
 
+    // Save with both field names for compatibility
     await db.collection('EnergyRecords').add({
-      userId: user.uid,
-      kwh,
-      cost,
-      lab,
+      uid: user.uid,
+      userId: user.uid, // Keep both for compatibility
+      energy: energy,
+      kwh: energy, // Keep both for compatibility
+      cost: cost,
+      lab: lab,
       timestamp: firebase.firestore.FieldValue.serverTimestamp()
     });
 
-    popup.textContent = "DataSaved successfully!";
+    // Success message
+    popup.innerHTML = '<span class="material-icons">check_circle</span>Data saved successfully!';
     popup.className = "result-popup success";
-    popup.style.display = "block";
+    popup.style.display = "flex";
+
+    // Clear form after successful save
+    setTimeout(() => {
+      document.getElementById('kwh').value = '';
+      document.getElementById('lab').value = '';
+      if(typeof selectedLabValue !== 'undefined') {
+        selectedLabValue = '';
+      }
+      document.querySelectorAll('.lab-card').forEach(card => {
+        card.classList.remove('selected');
+      });
+      document.getElementById('resultSection').style.display = 'none';
+      popup.style.display = 'none';
+      
+      // Reload recent calculations
+      if(typeof loadRecentCalculations === 'function'){
+        loadRecentCalculations();
+      }
+    }, 2000);
 
   } catch (err) {
     console.error(err);
-    popup.textContent = "Failed to save data!";
+    popup.innerHTML = '<span class="material-icons">error</span>Failed to save data!';
     popup.className = "result-popup error";
-    popup.style.display = "block";
+    popup.style.display = "flex";
+  } finally {
+    // Re-enable button
+    calculateBtn.disabled = false;
+    calculateBtn.innerHTML = '<span class="material-icons">save</span><span>Calculate & Save</span>';
   }
 }
 

@@ -64,6 +64,7 @@ body{
   justify-content:space-between;
   align-items:center;
   margin-bottom:20px;
+  position:relative;
 }
 .profile-icon{
   width:36px;
@@ -74,6 +75,91 @@ body{
   align-items:center;
   justify-content:center;
   color:white;
+  font-weight:600;
+  cursor:pointer;
+  transition:transform 0.2s ease;
+  position:relative;
+}
+.profile-icon:hover{
+  transform:scale(1.05);
+}
+
+/* User Details Dropdown */
+.user-details-dropdown{
+  position:absolute;
+  top:50px;
+  right:0;
+  background:#fff;
+  border-radius:12px;
+  box-shadow:0 8px 24px rgba(0,0,0,0.15);
+  padding:20px;
+  min-width:280px;
+  z-index:1000;
+  display:none;
+  animation:slideDown 0.3s ease;
+}
+.user-details-dropdown.show{
+  display:block;
+}
+@keyframes slideDown{
+  from{
+    opacity:0;
+    transform:translateY(-10px);
+  }
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+}
+.user-details-header{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding-bottom:16px;
+  border-bottom:1px solid #e5e7eb;
+  margin-bottom:16px;
+}
+.user-avatar{
+  width:48px;
+  height:48px;
+  border-radius:50%;
+  background:#22c55e;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:white;
+  font-weight:600;
+  font-size:18px;
+}
+.user-info h4{
+  font-size:16px;
+  color:#1f2937;
+  margin-bottom:4px;
+}
+.user-info p{
+  font-size:13px;
+  color:#6b7280;
+}
+.user-details-item{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:12px 0;
+  border-bottom:1px solid #f3f4f6;
+}
+.user-details-item:last-child{
+  border-bottom:none;
+}
+.user-details-item .material-icons{
+  font-size:20px;
+  color:#6b7280;
+}
+.user-details-item span{
+  font-size:14px;
+  color:#374151;
+}
+.user-details-item strong{
+  color:#1f2937;
   font-weight:600;
 }
 
@@ -255,7 +341,30 @@ th{color:#374151;}
 
 <div class="topbar">
   <h3>Overview</h3>
-  <div class="profile-icon">U</div>
+  <div style="position:relative;">
+    <div class="profile-icon" id="profileIcon" onclick="toggleUserDetails()">U</div>
+    <div class="user-details-dropdown" id="userDetailsDropdown">
+      <div class="user-details-header">
+        <div class="user-avatar" id="userAvatar">U</div>
+        <div class="user-info">
+          <h4 id="userName">Loading...</h4>
+          <p id="userEmail">Loading...</p>
+        </div>
+      </div>
+      <div class="user-details-item">
+        <span class="material-icons">email</span>
+        <span id="userEmailDetail">-</span>
+      </div>
+      <div class="user-details-item">
+        <span class="material-icons">verified_user</span>
+        <span>Email Verified: <strong id="emailVerified">-</strong></span>
+      </div>
+      <div class="user-details-item">
+        <span class="material-icons">access_time</span>
+        <span>Last Login: <strong id="lastLogin">-</strong></span>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- CARDS -->
@@ -310,6 +419,47 @@ function toggleSidebar(){
   const sidebar = document.querySelector('.sidebar');
   sidebar.classList.toggle('collapsed');
 }
+
+// User Details Toggle
+function toggleUserDetails(){
+  const dropdown = document.getElementById('userDetailsDropdown');
+  dropdown.classList.toggle('show');
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function(event){
+  const profileIcon = document.getElementById('profileIcon');
+  const dropdown = document.getElementById('userDetailsDropdown');
+  
+  if(!profileIcon.contains(event.target) && !dropdown.contains(event.target)){
+    dropdown.classList.remove('show');
+  }
+});
+
+// Load user details
+function loadUserDetails(user){
+  if(!user) return;
+  
+  // Update avatar with first letter of email or name
+  const displayName = user.displayName || user.email || 'User';
+  const firstLetter = displayName.charAt(0).toUpperCase();
+  document.getElementById('userAvatar').textContent = firstLetter;
+  document.getElementById('profileIcon').textContent = firstLetter;
+  
+  // Update user info
+  document.getElementById('userName').textContent = user.displayName || 'User';
+  document.getElementById('userEmail').textContent = user.email || '-';
+  document.getElementById('userEmailDetail').textContent = user.email || '-';
+  document.getElementById('emailVerified').textContent = user.emailVerified ? 'Yes' : 'No';
+  
+  // Get last login time (using metadata)
+  if(user.metadata && user.metadata.lastSignInTime){
+    const lastLogin = new Date(user.metadata.lastSignInTime);
+    document.getElementById('lastLogin').textContent = lastLogin.toLocaleString();
+  } else {
+    document.getElementById('lastLogin').textContent = 'Just now';
+  }
+}
 </script>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -320,6 +470,9 @@ function toggleSidebar(){
 <script>
   firebase.auth().onAuthStateChanged(async user => {
   if (!user) return;
+
+  // Load user details
+  loadUserDetails(user);
 
   const snap = await db.collection("AIInsights").doc(user.uid).get();
   if (!snap.exists) return;
