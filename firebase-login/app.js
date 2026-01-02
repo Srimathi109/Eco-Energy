@@ -192,13 +192,18 @@ function loadDashboard(user) {
     .limit(1)
     .get()
     .then(snapshot => {
-      if (!snapshot.empty) {
+      const consumptionEl = document.getElementById("todayConsumption");
+      const costEl = document.getElementById("todayCost");
+      
+      if (!snapshot.empty && consumptionEl && costEl) {
         const d = snapshot.docs[0].data();
-        document.getElementById("todayConsumption").innerText = d.energy + " kWh";
-        document.getElementById("todayCost").innerText = "₹" + d.cost;
-      } else {
-        document.getElementById("todayConsumption").innerText = "0 kWh";
-        document.getElementById("todayCost").innerText = "₹0";
+        const energy = d.energy || d.kwh || 0;
+        const cost = d.cost || (energy * 10);
+        consumptionEl.innerText = parseFloat(energy).toFixed(2) + " kWh";
+        costEl.innerText = "₹" + parseFloat(cost).toFixed(2);
+      } else if (consumptionEl && costEl) {
+        consumptionEl.innerText = "0 kWh";
+        costEl.innerText = "₹0";
       }
     })
     .catch(err => console.error("Dashboard error:", err));
@@ -242,17 +247,29 @@ function loadDashboardHistory(user) {
     .orderBy("timestamp","desc")
     .limit(5)
     .onSnapshot(snapshot => {
+      if (snapshot.empty) {
+        table.innerHTML = `
+          <tr>
+            <td colspan="5" style="text-align:center; padding:40px; color:#9ca3af;">
+              No records found. Start by calculating energy usage.
+            </td>
+          </tr>
+        `;
+        return;
+      }
       table.innerHTML = "";
       snapshot.forEach(doc => {
         const d = doc.data();
         const dateObj = d.timestamp.toDate();
+        const energy = d.energy || d.kwh || 0;
+        const cost = d.cost || (energy * 10);
         table.innerHTML += `
           <tr>
-            <td>${dateObj.toLocaleDateString()}</td>
-            <td>${dateObj.toLocaleTimeString()}</td>
-            <td>${d.lab}</td>
-            <td>${d.energy}</td>
-            <td>₹${d.cost}</td>
+            <td>${dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
+            <td>${dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</td>
+            <td><span class="table-lab-badge">${d.lab || 'Unknown'}</span></td>
+            <td><strong>${parseFloat(energy).toFixed(2)} kWh</strong></td>
+            <td><strong style="color:#22c55e;">₹${parseFloat(cost).toFixed(2)}</strong></td>
           </tr>
         `;
       });

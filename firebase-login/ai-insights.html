@@ -436,13 +436,6 @@ body { background:#f4f7f6; font-family:Inter; margin:0 }
     <div id="zeroLabs" class="loading">Analyzing...</div>
   </div>
 
-  <!-- Trend Analysis -->
-  <div class="section">
-    <h3>📈 Energy Trend Analysis</h3>
-    <div class="chart-container">
-      <canvas id="trendChart"></canvas>
-    </div>
-  </div>
 </div>
 </div>
 
@@ -580,7 +573,6 @@ import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
 const API_KEY = "AIzaSyB8JN2x_pVyFH9rAI3WM9rnv4d7ADcpRpU";
 const genAI = new GoogleGenerativeAI(API_KEY);
 const db = firebase.firestore();
-let trendChartInstance = null;
 
 firebase.auth().onAuthStateChanged(async (user) => {
   if (!user) return window.location.href = "index.html";
@@ -775,9 +767,6 @@ Return ONLY valid JSON in this exact format:
       totalSavings: totalSavings
     };
 
-    // Render trend chart
-    renderTrendChart(records, labStats);
-
   } catch (err) {
     console.error("AI Insights Error:", err);
     safeDiv.innerHTML = abnormalDiv.innerHTML = efficientDiv.innerHTML = zeroDiv.innerHTML = 
@@ -845,77 +834,6 @@ function renderEnhancedList(div, items, emptyMsg, category, labStats) {
 
 function toggleCard(card) {
   card.classList.toggle('expanded');
-}
-
-function renderTrendChart(records, labStats) {
-  const ctx = document.getElementById('trendChart');
-  if (!ctx) return;
-
-  // Group records by date
-  const dailyData = {};
-  records.forEach(r => {
-    const date = r.timestamp.toISOString().split('T')[0];
-    if (!dailyData[date]) dailyData[date] = {};
-    if (!dailyData[date][r.lab]) dailyData[date][r.lab] = { total: 0, count: 0 };
-    dailyData[date][r.lab].total += r.energy || 0;
-    dailyData[date][r.lab].count++;
-  });
-
-  const dates = Object.keys(dailyData).sort().slice(-7); // Last 7 days
-  const labs = Object.keys(labStats);
-  
-  const datasets = labs.map((lab, idx) => {
-    const colors = ['#22c55e', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6'];
-    return {
-      label: lab,
-      data: dates.map(date => {
-        const labData = dailyData[date]?.[lab];
-        return labData ? (labData.total / labData.count).toFixed(2) : 0;
-      }),
-      borderColor: colors[idx % colors.length],
-      backgroundColor: colors[idx % colors.length] + '40',
-      tension: 0.4,
-      fill: false
-    };
-  });
-
-  if (trendChartInstance) trendChartInstance.destroy();
-
-  trendChartInstance = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: dates.map(d => new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })),
-      datasets: datasets
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          position: 'top',
-        },
-        title: {
-          display: true,
-          text: '7-Day Energy Consumption Trends by Lab'
-        }
-      },
-      scales: {
-        y: {
-          beginAtZero: true,
-          title: {
-            display: true,
-            text: 'Average Energy (kWh)'
-          }
-        },
-        x: {
-          title: {
-            display: true,
-            text: 'Date'
-          }
-        }
-      }
-    }
-  });
 }
 
 // Make toggleCard available globally
