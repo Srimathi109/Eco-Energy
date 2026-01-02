@@ -711,21 +711,8 @@ Return ONLY valid JSON in this exact format:
   ]
 }`;
 
-    let model, result;
-    try {
-      model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-      result = await model.generateContent(prompt);
-    } catch (modelError) {
-      // If gemini-1.5-flash fails, try gemini-1.5-pro
-      console.warn("gemini-2.5-flash failed, trying gemini-1.5-pro:", modelError);
-      try {
-        model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
-        result = await model.generateContent(prompt);
-      } catch (proError) {
-        // If both fail, provide helpful error message
-        throw new Error(`Model not available. Tried: gemini-1.5-flash and gemini-1.5-pro. Please check your Google AI Studio (https://aistudio.google.com/) to verify your API key has access to Gemini models. Error: ${modelError.message}`);
-      }
-    }
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+    const result = await model.generateContent(prompt);
     const text = result.response.text();
     
     // Extract JSON from response
