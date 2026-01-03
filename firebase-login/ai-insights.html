@@ -413,7 +413,7 @@ body { background:#f4f7f6; font-family:Inter; margin:0 }
 
   <!-- Filter Tabs -->
   <div class="filter-tabs">
-    <button class="filter-tab active" onclick="filterLabs('all')">All Labs</button>
+    <button class="filter-tab active" onclick="filterLabs('all', event)">All Labs</button>
     <button class="filter-tab" onclick="filterLabs('abnormal')">Abnormal</button>
     <button class="filter-tab" onclick="filterLabs('safe')">Safe</button>
     <button class="filter-tab" onclick="filterLabs('efficient')">Efficient</button>
@@ -452,7 +452,8 @@ function toggleSidebar(){
   sidebar.classList.toggle('collapsed');
 }
 
-function filterLabs(category) {
+function filterLabs(category, event) {
+ {
   document.querySelectorAll('.filter-tab').forEach(tab => tab.classList.remove('active'));
   event.target.classList.add('active');
   
