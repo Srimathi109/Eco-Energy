@@ -46,7 +46,7 @@ const app = firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-const COST_PER_KWH = 10; // ₹10 per kWh
+const COST_PER_KWH = 9.1; 
 
 // --- SIGNUP ---
 function signup() {
@@ -129,7 +129,7 @@ async function calculateAndSave() {
   calculateBtn.innerHTML = '<span class="material-icons">hourglass_empty</span><span>Saving...</span>';
 
   // Example calculation: cost = 10 ₹ per kWh
-  const cost = parseFloat((kwh * 10).toFixed(2));
+  const cost = parseFloat((kwh * 9.1).toFixed(2));
   const energy = kwh;
 
   try {

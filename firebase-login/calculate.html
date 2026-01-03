@@ -652,7 +652,7 @@ input[type="number"]:hover{
           </div>
           <div class="cost-breakdown-item">
             <span>Rate per kWh</span>
-            <span>₹10.00</span>
+            <span>₹9.10</span>
           </div>
           <div class="cost-breakdown-item">
             <span>Total Cost</span>
@@ -704,7 +704,7 @@ function updatePreview(){
   const lab = selectedLabValue;
   
   if(kwh > 0 && lab){
-    const cost = (kwh * 10).toFixed(2);
+    const cost = (kwh * 9.1).toFixed(2);
     document.getElementById('resultEnergy').textContent = kwh.toFixed(2);
     document.getElementById('resultCost').textContent = cost;
     document.getElementById('breakdownEnergy').textContent = kwh.toFixed(2);

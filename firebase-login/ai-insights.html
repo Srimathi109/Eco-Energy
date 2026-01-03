@@ -403,6 +403,14 @@ body { background:#f4f7f6; font-family:Inter; margin:0 }
     </div>
   </div>
 
+  <!-- Trend Chart Section -->
+  <div class="section trend-section">
+    <h3>📈 Energy Consumption Trends</h3>
+    <div class="chart-container">
+      <canvas id="trendChart"></canvas>
+    </div>
+  </div>
+
   <!-- Filter Tabs -->
   <div class="filter-tabs">
     <button class="filter-tab active" onclick="filterLabs('all')">All Labs</button>
@@ -570,7 +578,9 @@ function exportInsights() {
 import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai@latest?cachebust=20260103";
 
 
+
 const API_KEY = "AIzaSyDELoQtP63Ix4rIS-dQAXWG4lHHaUK-zhs";
+
 const genAI = new GoogleGenerativeAI(API_KEY);
 const db = firebase.firestore();
 
@@ -762,6 +772,102 @@ Return ONLY valid JSON in this exact format:
     safeDiv.innerHTML = abnormalDiv.innerHTML = efficientDiv.innerHTML = zeroDiv.innerHTML = 
       `<div class="empty-state"><span class="material-icons">error</span><p>Error generating insights: ${err.message}</p></div>`;
   }
+}
+
+// Trend Chart Function
+let trendChartInstance = null;
+
+function renderTrendChart(records, labStats) {
+  const canvas = document.getElementById('trendChart');
+  if (!canvas) return;
+
+  // Group records by date
+  const dailyData = {};
+  const labColors = {
+    'Computer Lab': '#22c55e',
+    'Electronics Lab': '#3b82f6',
+    'Physics Lab': '#f59e0b',
+    'Chemistry Lab': '#ef4444'
+  };
+
+  records.forEach(record => {
+    const date = new Date(record.timestamp);
+    const dateKey = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    
+    if (!dailyData[dateKey]) {
+      dailyData[dateKey] = {};
+    }
+    
+    if (!dailyData[dateKey][record.lab]) {
+      dailyData[dateKey][record.lab] = 0;
+    }
+    
+    dailyData[dateKey][record.lab] += record.energy || 0;
+  });
+
+  // Get all unique dates and labs
+  const dates = Object.keys(dailyData).sort((a, b) => {
+    return new Date(a) - new Date(b);
+  });
+  const labs = Object.keys(labStats);
+
+  // Prepare datasets for each lab
+  const datasets = labs.map(lab => ({
+    label: lab,
+    data: dates.map(date => dailyData[date]?.[lab] || 0),
+    borderColor: labColors[lab] || '#6b7280',
+    backgroundColor: labColors[lab] ? labColors[lab] + '40' : '#6b728040',
+    tension: 0.4,
+    fill: false
+  }));
+
+  // Destroy existing chart if it exists
+  if (trendChartInstance) {
+    trendChartInstance.destroy();
+  }
+
+  // Create new chart
+  trendChartInstance = new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels: dates,
+      datasets: datasets
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: true,
+          position: 'top'
+        },
+        tooltip: {
+          mode: 'index',
+          intersect: false
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          title: {
+            display: true,
+            text: 'Energy (kWh)'
+          }
+        },
+        x: {
+          title: {
+            display: true,
+            text: 'Date'
+          }
+        }
+      },
+      interaction: {
+        mode: 'nearest',
+        axis: 'x',
+        intersect: false
+      }
+    }
+  });
 }
 
 function renderEnhancedList(div, items, emptyMsg, category, labStats) {
