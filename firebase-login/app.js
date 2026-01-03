@@ -227,7 +227,10 @@ let monthlyChartInstance;
 
 // ================= DASHBOARD CHARTS =================
 function loadDailyAnalytics(user) {
-  const ctx = document.getElementById("dailyChart").getContext("2d");
+  const canvas = document.getElementById("dailyChart");
+if (!canvas) return;
+const ctx = canvas.getContext("2d");
+
 
   db.collection("EnergyRecords")
     .where("uid", "==", user.uid)
@@ -349,7 +352,10 @@ function loadMonthlyAnalytics(user) {
 
       if (monthlyChartInstance) monthlyChartInstance.destroy();
 
-      const ctx = document.getElementById("monthlyChart").getContext("2d");
+      const canvas = document.getElementById("monthlyChart");
+if (!canvas) return;
+const ctx = canvas.getContext("2d");
+
       monthlyChartInstance = new Chart(ctx, {
         type:"bar",
         data:{
