@@ -49,64 +49,403 @@ body{
 .main{
   flex:1;
   padding:24px;
+  overflow-y:auto;
+  background:#f4f7f6;
 }
-/* Larger input fields and buttons */
-.section{
+
+.page-header{
+  margin-bottom:24px;
+}
+
+.page-header h2{
+  font-size:28px;
+  color:#1f2937;
+  margin-bottom:8px;
+}
+
+.page-header p{
+  color:#6b7280;
+  font-size:14px;
+}
+
+/* Calculator Container */
+.calculator-container{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:24px;
+  margin-bottom:24px;
+}
+
+@media(max-width:968px){
+  .calculator-container{
+    grid-template-columns:1fr;
+  }
+}
+
+/* Input Section */
+.input-section{
   background:#fff;
-  padding:30px;
-  border-radius:14px;
-  box-shadow:0 10px 25px rgba(0,0,0,.08);
-  max-width:1600px;
+  padding:32px;
+  border-radius:16px;
+  box-shadow:0 4px 6px rgba(0,0,0,0.05);
 }
 
-input, select, button{
-  padding:15px;
-  font-size:16px;
-  border-radius:10px;
-  border:1px solid #e5e7eb;
-  width:100%;
-  margin-bottom:16px;
-  box-sizing: border-box;
-}
-
-button{
-  background:#16a34a;
-  color:#fff;
+.section-title{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-size:20px;
   font-weight:600;
-  border:none;
-  cursor:pointer;
-  font-size:16px;
+  color:#1f2937;
+  margin-bottom:24px;
 }
 
-button:hover{
-  background:#22c55e;
+.section-title .material-icons{
+  color:#22c55e;
+  font-size:24px;
+}
+
+/* Form Group */
+.form-group{
+  margin-bottom:24px;
+}
+
+.form-group label{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:14px;
+  font-weight:500;
+  color:#374151;
+  margin-bottom:10px;
+}
+
+.form-group label .material-icons{
+  font-size:18px;
+  color:#6b7280;
+}
+
+.input-wrapper{
+  position:relative;
+}
+
+.input-wrapper .material-icons{
+  position:absolute;
+  left:16px;
+  top:50%;
+  transform:translateY(-50%);
+  color:#9ca3af;
+  pointer-events:none;
+}
+
+input[type="number"]{
+  padding:14px 14px 14px 48px;
+  font-size:16px;
+  border-radius:12px;
+  border:2px solid #e5e7eb;
+  width:100%;
+  box-sizing:border-box;
+  transition:all 0.2s ease;
+  background:#fff;
+}
+
+input[type="number"]:focus{
+  outline:none;
+  border-color:#22c55e;
+  box-shadow:0 0 0 3px rgba(34,197,94,0.1);
+}
+
+input[type="number"]:hover{
+  border-color:#d1d5db;
+}
+
+/* Lab Selection Cards */
+.lab-cards{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:12px;
+  margin-bottom:24px;
+}
+
+@media(max-width:600px){
+  .lab-cards{
+    grid-template-columns:1fr;
+  }
+}
+
+.lab-card{
+  padding:16px;
+  border:2px solid #e5e7eb;
+  border-radius:12px;
+  cursor:pointer;
+  transition:all 0.2s ease;
+  background:#fff;
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.lab-card:hover{
+  border-color:#22c55e;
+  background:#f0fdf4;
+  transform:translateY(-2px);
+  box-shadow:0 4px 12px rgba(34,197,94,0.15);
+}
+
+.lab-card.selected{
+  border-color:#22c55e;
+  background:#ecfdf5;
+  box-shadow:0 0 0 3px rgba(34,197,94,0.1);
+}
+
+.lab-card-icon{
+  width:40px;
+  height:40px;
+  border-radius:10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#d1fae5;
+  color:#16a34a;
+  font-size:20px;
+}
+
+.lab-card-info{
+  flex:1;
+}
+
+.lab-card-info h4{
+  font-size:14px;
+  font-weight:600;
+  color:#1f2937;
+  margin-bottom:2px;
+}
+
+.lab-card-info p{
+  font-size:12px;
+  color:#6b7280;
+}
+
+/* Calculate Button */
+.calculate-btn{
+  width:100%;
+  padding:16px;
+  font-size:16px;
+  font-weight:600;
+  border-radius:12px;
+  border:none;
+  background:linear-gradient(135deg,#16a34a,#22c55e);
+  color:#fff;
+  cursor:pointer;
+  transition:all 0.2s ease;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  box-shadow:0 4px 12px rgba(34,197,94,0.3);
+}
+
+.calculate-btn:hover{
+  transform:translateY(-2px);
+  box-shadow:0 6px 16px rgba(34,197,94,0.4);
+}
+
+.calculate-btn:active{
+  transform:translateY(0);
+}
+
+.calculate-btn:disabled{
+  opacity:0.6;
+  cursor:not-allowed;
+  transform:none;
+}
+
+/* Result Section */
+.result-section{
+  background:linear-gradient(135deg,#ecfdf5,#d1fae5);
+  padding:32px;
+  border-radius:16px;
+  box-shadow:0 4px 6px rgba(0,0,0,0.05);
+  border:2px solid #bbf7d0;
+}
+
+.result-header{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:24px;
+}
+
+.result-header h3{
+  font-size:20px;
+  font-weight:600;
+  color:#065f46;
+}
+
+.result-cards{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:16px;
+  margin-bottom:20px;
+}
+
+@media(max-width:600px){
+  .result-cards{
+    grid-template-columns:1fr;
+  }
+}
+
+.result-card{
+  background:#fff;
+  padding:20px;
+  border-radius:12px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.05);
+}
+
+.result-card-label{
+  font-size:12px;
+  color:#6b7280;
+  text-transform:uppercase;
+  letter-spacing:0.5px;
+  margin-bottom:8px;
+  font-weight:500;
+}
+
+.result-card-value{
+  font-size:28px;
+  font-weight:700;
+  color:#15803d;
+  display:flex;
+  align-items:baseline;
+  gap:4px;
+}
+
+.result-card-value .unit{
+  font-size:16px;
+  font-weight:500;
+  color:#6b7280;
+}
+
+.cost-breakdown{
+  background:#fff;
+  padding:16px;
+  border-radius:12px;
+  margin-top:16px;
+}
+
+.cost-breakdown-item{
+  display:flex;
+  justify-content:space-between;
+  padding:12px 0;
+  border-bottom:1px solid #f3f4f6;
+}
+
+.cost-breakdown-item:last-child{
+  border-bottom:none;
+  font-weight:600;
+  font-size:16px;
+  color:#15803d;
 }
 
 /* Result popup */
 .result-popup{
-  padding:12px 16px;
-  margin-top:16px;
-  border-radius:8px;
+  padding:16px 20px;
+  margin-top:20px;
+  border-radius:12px;
   font-weight:500;
-  display:none; /* hidden by default */
+  display:none;
+  animation:slideIn 0.3s ease;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+@keyframes slideIn{
+  from{
+    opacity:0;
+    transform:translateY(-10px);
+  }
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
 }
 
 .result-popup.success{
-  background:#dcfce7; /* light green */
-  color:#166534; /* dark green text */
+  background:#dcfce7;
+  color:#166534;
+  border:2px solid #86efac;
 }
 
 .result-popup.error{
-  background:#fee2e2; /* light red */
-  color:#991b1b; /* dark red text */
+  background:#fee2e2;
+  color:#991b1b;
+  border:2px solid #fca5a5;
 }
 
-select{
-  padding:10px;
+.result-popup .material-icons{
+  font-size:20px;
+}
+
+/* Recent Calculations */
+.recent-section{
+  background:#fff;
+  padding:32px;
+  border-radius:16px;
+  box-shadow:0 4px 6px rgba(0,0,0,0.05);
+  margin-top:24px;
+}
+
+.recent-list{
+  margin-top:20px;
+}
+
+.recent-item{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:16px;
+  border-bottom:1px solid #f3f4f6;
   border-radius:8px;
-  border:1px solid #e5e7eb;
-  width:100%;
-  margin-bottom:12px;
+  transition:background 0.2s ease;
+}
+
+.recent-item:hover{
+  background:#f9fafb;
+}
+
+.recent-item:last-child{
+  border-bottom:none;
+}
+
+.recent-item-info{
+  flex:1;
+}
+
+.recent-item-lab{
+  font-weight:600;
+  color:#1f2937;
+  margin-bottom:4px;
+}
+
+.recent-item-details{
+  font-size:13px;
+  color:#6b7280;
+}
+
+.recent-item-value{
+  text-align:right;
+}
+
+.recent-item-value .amount{
+  font-size:18px;
+  font-weight:600;
+  color:#15803d;
+}
+
+.recent-item-value .energy{
+  font-size:12px;
+  color:#6b7280;
 }
 /* Sidebar header */
 .sidebar-header{
@@ -146,10 +485,17 @@ select{
 .sidebar.collapsed .toggle-btn{
   transform:rotate(180deg);
 }
-.section-wrapper {
-  display: flex;
-  justify-content: center; /* centers horizontally */
-  margin-top: 30px;        /* optional spacing below the title */
+/* Empty State */
+.empty-state{
+  text-align:center;
+  padding:40px;
+  color:#6b7280;
+}
+
+.empty-state .material-icons{
+  font-size:48px;
+  color:#d1d5db;
+  margin-bottom:16px;
 }
 
 </style>
@@ -183,42 +529,257 @@ select{
 
   <!-- MAIN -->
   <div class="main">
-    <h2>Energy Calculator</h2>
-    <div class="section-wrapper">
-    <div class="section">
-      <label for="kwh">Energy Consumed (kWh)</label>
-      <input
-        type="number"
-        id="kwh"
-        placeholder="Enter energy in kWh"
-        min="0"
-        step="0.01"
-      >
-      <label for="lab">Select Lab</label>
-<select id="lab" required>
-  <option value="">-- Select Lab --</option>
-  <option value="Computer Lab">Computer Lab</option>
-  <option value="Electronics Lab">Electronics Lab</option>
-  <option value="Physics Lab">Physics Lab</option>
-  <option value="Chemistry Lab">Chemistry Lab</option>
-</select>
+    <div class="page-header">
+      <h2>Energy Calculator</h2>
+      <p>Calculate and track energy consumption for your laboratory facilities</p>
+    </div>
 
-      <button onclick="calculateAndSave()">Calculate & Save</button>
+    <div class="calculator-container">
+      <!-- Input Section -->
+      <div class="input-section">
+        <div class="section-title">
+          <span class="material-icons">calculate</span>
+          <span>Enter Details</span>
+        </div>
 
-<p id="consumption" class="result"></p>
-<p id="cost" class="result"></p>
+        <div class="form-group">
+          <label for="kwh">
+            <span class="material-icons">bolt</span>
+            <span>Energy Consumed (kWh)</span>
+          </label>
+          <div class="input-wrapper">
+            <span class="material-icons">flash_on</span>
+            <input
+              type="number"
+              id="kwh"
+              placeholder="0.00"
+              min="0"
+              step="0.01"
+              oninput="updatePreview()"
+            >
+          </div>
+        </div>
 
-<!-- Popup message -->
-<div id="popup" class="result-popup"></div>
+        <div class="form-group">
+          <label>
+            <span class="material-icons">science</span>
+            <span>Select Laboratory</span>
+          </label>
+          <div class="lab-cards" id="labCards">
+            <div class="lab-card" data-lab="Computer Lab" onclick="selectLab('Computer Lab')">
+              <div class="lab-card-icon">
+                <span class="material-icons">computer</span>
+              </div>
+              <div class="lab-card-info">
+                <h4>Computer Lab</h4>
+                <p>Standard consumption</p>
+              </div>
+            </div>
+            <div class="lab-card" data-lab="Electronics Lab" onclick="selectLab('Electronics Lab')">
+              <div class="lab-card-icon">
+                <span class="material-icons">memory</span>
+              </div>
+              <div class="lab-card-info">
+                <h4>Electronics Lab</h4>
+                <p>70% consumption rate</p>
+              </div>
+            </div>
+            <div class="lab-card" data-lab="Physics Lab" onclick="selectLab('Physics Lab')">
+              <div class="lab-card-icon">
+                <span class="material-icons">biotech</span>
+              </div>
+              <div class="lab-card-info">
+                <h4>Physics Lab</h4>
+                <p>50% consumption rate</p>
+              </div>
+            </div>
+            <div class="lab-card" data-lab="Chemistry Lab" onclick="selectLab('Chemistry Lab')">
+              <div class="lab-card-icon">
+                <span class="material-icons">science</span>
+              </div>
+              <div class="lab-card-info">
+                <h4>Chemistry Lab</h4>
+                <p>60% consumption rate</p>
+              </div>
+            </div>
+          </div>
+          <select id="lab" required style="display:none;">
+            <option value="">-- Select Lab --</option>
+            <option value="Computer Lab">Computer Lab</option>
+            <option value="Electronics Lab">Electronics Lab</option>
+            <option value="Physics Lab">Physics Lab</option>
+            <option value="Chemistry Lab">Chemistry Lab</option>
+          </select>
+        </div>
 
+        <button class="calculate-btn" onclick="calculateAndSave()" id="calculateBtn">
+          <span class="material-icons">save</span>
+          <span>Calculate & Save</span>
+        </button>
+
+        <!-- Popup message -->
+        <div id="popup" class="result-popup"></div>
+      </div>
+
+      <!-- Result Section -->
+      <div class="result-section" id="resultSection" style="display:none;">
+        <div class="result-header">
+          <span class="material-icons">assessment</span>
+          <h3>Calculation Results</h3>
+        </div>
+
+        <div class="result-cards">
+          <div class="result-card">
+            <div class="result-card-label">Energy Consumed</div>
+            <div class="result-card-value">
+              <span id="resultEnergy">0.00</span>
+              <span class="unit">kWh</span>
+            </div>
+          </div>
+          <div class="result-card">
+            <div class="result-card-label">Total Cost</div>
+            <div class="result-card-value">
+              <span>₹</span>
+              <span id="resultCost">0.00</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="cost-breakdown">
+          <div class="cost-breakdown-item">
+            <span>Energy (kWh)</span>
+            <span id="breakdownEnergy">0.00</span>
+          </div>
+          <div class="cost-breakdown-item">
+            <span>Rate per kWh</span>
+            <span>₹10.00</span>
+          </div>
+          <div class="cost-breakdown-item">
+            <span>Total Cost</span>
+            <span id="breakdownTotal">₹0.00</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Calculations -->
+    <div class="recent-section" id="recentSection" style="display:none;">
+      <div class="section-title">
+        <span class="material-icons">history</span>
+        <span>Recent Calculations</span>
+      </div>
+      <div class="recent-list" id="recentList">
+        <!-- Recent items will be loaded here -->
+      </div>
+    </div>
   </div>
-</div>
-</div>
+
 <script>
 function toggleSidebar(){
   const sidebar = document.querySelector('.sidebar');
   sidebar.classList.toggle('collapsed');
 }
+
+// Lab Selection
+let selectedLabValue = '';
+
+function selectLab(labName){
+  selectedLabValue = labName;
+  document.getElementById('lab').value = labName;
+  
+  // Update card styles
+  document.querySelectorAll('.lab-card').forEach(card => {
+    card.classList.remove('selected');
+    if(card.dataset.lab === labName){
+      card.classList.add('selected');
+    }
+  });
+  
+  updatePreview();
+}
+
+// Real-time Preview
+function updatePreview(){
+  const kwh = parseFloat(document.getElementById('kwh').value) || 0;
+  const lab = selectedLabValue;
+  
+  if(kwh > 0 && lab){
+    const cost = (kwh * 10).toFixed(2);
+    document.getElementById('resultEnergy').textContent = kwh.toFixed(2);
+    document.getElementById('resultCost').textContent = cost;
+    document.getElementById('breakdownEnergy').textContent = kwh.toFixed(2);
+    document.getElementById('breakdownTotal').textContent = '₹' + cost;
+    document.getElementById('resultSection').style.display = 'block';
+  } else {
+    document.getElementById('resultSection').style.display = 'none';
+  }
+}
+
+// Load Recent Calculations
+function loadRecentCalculations(){
+  if(typeof firebase === 'undefined' || !firebase.auth) return;
+  
+  const user = firebase.auth().currentUser;
+  if(!user) return;
+  
+  const db = firebase.firestore();
+  const recentList = document.getElementById('recentList');
+  const recentSection = document.getElementById('recentSection');
+  
+  if(!recentList || !recentSection) return;
+  
+  db.collection('EnergyRecords')
+    .where('uid', '==', user.uid)
+    .orderBy('timestamp', 'desc')
+    .limit(5)
+    .get()
+    .then(snapshot => {
+      if(snapshot.empty){
+        recentSection.style.display = 'none';
+        return;
+      }
+      
+      recentSection.style.display = 'block';
+      recentList.innerHTML = '';
+      
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        const timestamp = data.timestamp?.toDate ? data.timestamp.toDate() : new Date();
+        const lab = data.lab || 'Unknown Lab';
+        const energy = data.energy || data.kwh || 0;
+        const cost = data.cost || (energy * 10);
+        
+        const item = document.createElement('div');
+        item.className = 'recent-item';
+        item.innerHTML = `
+          <div class="recent-item-info">
+            <div class="recent-item-lab">${lab}</div>
+            <div class="recent-item-details">${timestamp.toLocaleDateString()} • ${timestamp.toLocaleTimeString()}</div>
+          </div>
+          <div class="recent-item-value">
+            <div class="amount">₹${parseFloat(cost).toFixed(2)}</div>
+            <div class="energy">${parseFloat(energy).toFixed(2)} kWh</div>
+          </div>
+        `;
+        recentList.appendChild(item);
+      });
+    })
+    .catch(err => {
+      console.error('Error loading recent calculations:', err);
+      if(recentSection) recentSection.style.display = 'none';
+    });
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function(){
+  if(typeof firebase !== 'undefined' && firebase.auth){
+    firebase.auth().onAuthStateChanged(user => {
+      if(user){
+        loadRecentCalculations();
+      }
+    });
+  }
+});
 </script>
 
 <!-- Firebase -->

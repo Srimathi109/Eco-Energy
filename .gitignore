@@ -1,0 +1,15 @@
+# Development scripts (keep locally but don't commit)
+start-server.sh
+start-server.bat
+
+# Documentation (optional - remove if you don't want in repo)
+*.md
+
+# Config files (optional - remove if you don't want in repo)
+# config.txt
+# computer_lab.txt
+
+# Firebase (keep these - needed for deployment)
+!firebase.json
+!.firebaserc
+

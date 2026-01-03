@@ -102,68 +102,139 @@ document.querySelectorAll(".logout").forEach(btn => {
 
 // ================= CALCULATE & SAVE =================
 async function calculateAndSave() {
-  const kwh = parseFloat(document.getElementById('kwh').value);
-  const lab = document.getElementById('lab').value;
+  const kwhInput = document.getElementById('kwh');
+  const labInput = document.getElementById('lab');
   const popup = document.getElementById('popup');
+  const calculateBtn = document.getElementById('calculateBtn');
 
-  // Validate inputs
-  if (isNaN(kwh) || kwh <= 0 || !lab) {
-    popup.textContent = "Please enter valid energy and select a lab!";
-    popup.className = "result-popup error";
-    popup.style.display = "block";
+  if (!kwhInput || !labInput || !popup || !calculateBtn) {
+    console.error('Required elements not found');
+    alert('Error: Page elements not found. Please refresh the page.');
     return;
   }
 
-  // Example calculation: cost = 10 ₹ per kWh
-  const cost = (kwh * 10).toFixed(2);
+  const kwh = parseFloat(kwhInput.value);
+  const lab = labInput.value;
 
-  document.getElementById('consumption').textContent = `Energy Consumed: ${kwh} kWh`;
-  document.getElementById('cost').textContent = `Total Cost: ₹ ${cost}`;
+  // Validate inputs
+  if (isNaN(kwh) || kwh <= 0 || !lab) {
+    popup.innerHTML = '<span class="material-icons">error</span>Please enter valid energy and select a lab!';
+    popup.className = "result-popup error";
+    popup.style.display = "flex";
+    return;
+  }
+
+  // Disable button during save
+  calculateBtn.disabled = true;
+  calculateBtn.innerHTML = '<span class="material-icons">hourglass_empty</span><span>Saving...</span>';
+
+  // Example calculation: cost = 10 ₹ per kWh
+  const cost = parseFloat((kwh * 10).toFixed(2));
+  const energy = kwh;
 
   try {
     const user = firebase.auth().currentUser;
     if (!user) throw new Error("User not logged in");
 
+    // Save with both field names for compatibility
     await db.collection('EnergyRecords').add({
-      userId: user.uid,
-      kwh,
-      cost,
-      lab,
+      uid: user.uid,
+      userId: user.uid, // Keep both for compatibility
+      energy: energy,
+      kwh: energy, // Keep both for compatibility
+      cost: cost,
+      lab: lab,
       timestamp: firebase.firestore.FieldValue.serverTimestamp()
     });
 
-    popup.textContent = "DataSaved successfully!";
+    // Success message
+    popup.innerHTML = '<span class="material-icons">check_circle</span>Data saved successfully!';
     popup.className = "result-popup success";
-    popup.style.display = "block";
+    popup.style.display = "flex";
+
+    // Clear form after successful save
+    setTimeout(() => {
+      document.getElementById('kwh').value = '';
+      document.getElementById('lab').value = '';
+      if(typeof selectedLabValue !== 'undefined') {
+        selectedLabValue = '';
+      }
+      document.querySelectorAll('.lab-card').forEach(card => {
+        card.classList.remove('selected');
+      });
+      document.getElementById('resultSection').style.display = 'none';
+      popup.style.display = 'none';
+      
+      // Reload recent calculations
+      if(typeof loadRecentCalculations === 'function'){
+        loadRecentCalculations();
+      }
+    }, 2000);
 
   } catch (err) {
     console.error(err);
-    popup.textContent = "Failed to save data!";
+    popup.innerHTML = '<span class="material-icons">error</span>Failed to save data!';
     popup.className = "result-popup error";
-    popup.style.display = "block";
+    popup.style.display = "flex";
+  } finally {
+    // Re-enable button
+    calculateBtn.disabled = false;
+    calculateBtn.innerHTML = '<span class="material-icons">save</span><span>Calculate & Save</span>';
   }
 }
 
 
-// ================= DASHBOARD =================
+// ================= DASHBOARD (FIXED – CUMULATIVE) =================
 function loadDashboard(user) {
+
+  const consumptionEl = document.getElementById("todayConsumption");
+  const costEl = document.getElementById("todayCost");
+
+  if (!consumptionEl || !costEl) return;
+
+  // ---- TODAY RANGE ----
+  const start = new Date();
+  start.setHours(0, 0, 0, 0);
+
+  const end = new Date();
+  end.setHours(23, 59, 59, 999);
+
+  let totalEnergy = 0;
+  let totalCost = 0;
+
   db.collection("EnergyRecords")
     .where("uid", "==", user.uid)
-    .orderBy("timestamp", "desc")
-    .limit(1)
+    .where("timestamp", ">=", start)
+    .where("timestamp", "<=", end)
     .get()
     .then(snapshot => {
-      if (!snapshot.empty) {
-        const d = snapshot.docs[0].data();
-        document.getElementById("todayConsumption").innerText = d.energy + " kWh";
-        document.getElementById("todayCost").innerText = "₹" + d.cost;
-      } else {
-        document.getElementById("todayConsumption").innerText = "0 kWh";
-        document.getElementById("todayCost").innerText = "₹0";
+
+      if (snapshot.empty) {
+        consumptionEl.innerText = "0 kWh";
+        costEl.innerText = "₹0";
+        return;
       }
+
+      snapshot.forEach(doc => {
+        const d = doc.data();
+
+        const energy = Number(d.energy || d.kwh || 0);
+        const cost = Number(d.cost || (energy * COST_PER_KWH));
+
+        totalEnergy += energy;
+        totalCost += cost;
+      });
+
+      consumptionEl.innerText = totalEnergy.toFixed(2) + " kWh";
+      costEl.innerText = "₹" + totalCost.toFixed(2);
     })
-    .catch(err => console.error("Dashboard error:", err));
+    .catch(err => {
+      console.error("Dashboard cumulative error:", err);
+      consumptionEl.innerText = "0 kWh";
+      costEl.innerText = "₹0";
+    });
 }
+
 
 // ================= HISTORY =================
 function loadHistory(user) {
@@ -203,17 +274,29 @@ function loadDashboardHistory(user) {
     .orderBy("timestamp","desc")
     .limit(5)
     .onSnapshot(snapshot => {
+      if (snapshot.empty) {
+        table.innerHTML = `
+          <tr>
+            <td colspan="5" style="text-align:center; padding:40px; color:#9ca3af;">
+              No records found. Start by calculating energy usage.
+            </td>
+          </tr>
+        `;
+        return;
+      }
       table.innerHTML = "";
       snapshot.forEach(doc => {
         const d = doc.data();
         const dateObj = d.timestamp.toDate();
+        const energy = d.energy || d.kwh || 0;
+        const cost = d.cost || (energy * 10);
         table.innerHTML += `
           <tr>
-            <td>${dateObj.toLocaleDateString()}</td>
-            <td>${dateObj.toLocaleTimeString()}</td>
-            <td>${d.lab}</td>
-            <td>${d.energy}</td>
-            <td>₹${d.cost}</td>
+            <td>${dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
+            <td>${dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</td>
+            <td><span class="table-lab-badge">${d.lab || 'Unknown'}</span></td>
+            <td><strong>${parseFloat(energy).toFixed(2)} kWh</strong></td>
+            <td><strong style="color:#22c55e;">₹${parseFloat(cost).toFixed(2)}</strong></td>
           </tr>
         `;
       });
