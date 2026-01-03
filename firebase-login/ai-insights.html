@@ -579,7 +579,7 @@ import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai@latest
 
 
 
-const API_KEY = "AIzaSyC8MWOY512EloaQVLE-o5SO_XtNFwZVU8Q";
+const API_KEY =process.env.GEMINI_API_KEY;
 
 const genAI = new GoogleGenerativeAI(API_KEY);
 const db = firebase.firestore();
