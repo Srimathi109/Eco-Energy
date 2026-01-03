@@ -1,0 +1,48 @@
+AI ENERGY INSIGHTS REPORT
+==================================================
+
+Generated: 03/01/2026, 15:17:01
+
+SUMMARY
+--------------------------------------------------
+Abnormal Labs: 2
+Safe Labs: 1
+Efficient Labs: 1
+Zero Consumption Labs: 0
+Potential Monthly Savings: ₹5,450
+
+ABNORMAL LABS
+--------------------------------------------------
+
+Computer Lab (HIGH Priority)
+  Reason: This lab exhibits an average consumption of 27.25 kWh, which is significantly higher than the overall average of 17.16 kWh. The data also reveals extreme variability, with recent readings fluctuating drastically from 4.50 kWh to a spike of 50.00 kWh. This suggests periods of very high usage, possibly due to equipment being left on, intensive computational tasks, or inefficient power management.
+  Avg Energy: 27.25 kWh
+  Recommendations:
+    - Conduct an immediate investigation into the cause of the 50.00 kWh consumption spikes. This could involve identifying specific high-power machines, servers, or practices (e.g., cryptocurrency mining, extended rendering tasks, or equipment left on overnight).
+    - Implement and enforce strict end-of-day shutdown protocols for all workstations, monitors, and non-essential peripherals. Consider deploying energy management software to automate shutdowns.
+    - Explore the use of smart power strips or timers for peripheral devices that are often left on unnecessarily.
+  Potential Savings: ₹2,450/month
+
+Chemistry Lab (HIGH Priority)
+  Reason: The Chemistry Lab shows a consistently high consumption of 30.00 kWh (based on the single record), which is nearly double the overall average of 17.16 kWh. While stable for the recorded period, this high baseline indicates continuous operation of energy-intensive equipment common in chemistry labs, such as fume hoods, ovens, chillers, or continuous stirring apparatus.
+  Avg Energy: 30.00 kWh
+  Recommendations:
+    - Perform an inventory of all high-power consuming equipment (e.g., fume hoods, vacuum pumps, chillers, heating plates, ovens) and their operational schedules to identify potential areas for reduction.
+    - Implement 'sash management' policies for fume hoods to reduce airflow volume and associated fan energy when not actively in use. Investigate if equipment can be turned off or put into standby during non-operational hours.
+    - Evaluate the efficiency of existing refrigerators and freezers; older models can consume significantly more energy. Consider replacement with energy-efficient models if applicable.
+  Potential Savings: ₹3,000/month
+
+SAFE LABS
+--------------------------------------------------
+
+Physics Lab
+  This lab shows a low average consumption of 6.50 kWh, which is significantly below the overall average of 17.16 kWh. However, there is some variability, with consumption ranging from 3.00 kWh to 10.00 kWh. While not alarmingly high, the peak usage indicates potential for minor optimization during certain operational periods.
+  Avg Energy: 6.50 kWh
+
+EFFICIENT LABS
+--------------------------------------------------
+
+Electronics Lab
+  The Electronics Lab demonstrates excellent energy management with a very low and stable average consumption of 4.90 kWh. This is well below the overall average of 17.16 kWh and represents a highly efficient operation for the recorded period.
+  Avg Energy: 4.90 kWh
+
