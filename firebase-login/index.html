@@ -18,12 +18,23 @@
 }
 
 body{
-    height:100vh;
-    background:url("Background.png") no-repeat center 35%;
-    background-size:110%;
-    display:flex;
-    justify-content:center;
-    align-items:center;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  overflow:hidden;
+}
+
+/* Background video */
+.bg-video{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  transform: translateY(6%);
+  z-index:-1;
 }
 
 .login-card{
@@ -164,6 +175,11 @@ body{
 </head>
 
 <body>
+  <video autoplay muted loop playsinline class="bg-video">
+  <source src="background.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
+
 
 <div class="login-card">
 
