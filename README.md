@@ -1,4 +1,4 @@
-# GOOGLE TECHSPRINT
+## GOOGLE TECHSPRINT
 ## DEPARTMENT OF INFORMATION TECHNOLOGY
 ## SSN COLLEGE OF ENGINEERING
 
@@ -32,7 +32,5 @@ This project presents a smart, scalable energy monitoring and analytics system d
 ## Google AI Tools Integrated
 •	Gemini 2.5 Flash – Used for fast, cost-efficient AI summarization of energy consumption trends and insights for users.
 
-
-
-
-
+## Demo Video
+[EcoEnergy.zip](https://github.com/user-attachments/files/24415095/EcoEnergy.zip)
