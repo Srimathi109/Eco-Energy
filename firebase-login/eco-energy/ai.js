@@ -1,10 +1,6 @@
-import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai@latest?cachebust=20260103";
+import { GEMINI_API_KEY } from './config.js';
+const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
-
-
-const API_KEY =process.env.GEMINI_API_KEY;
-
-const genAI = new GoogleGenerativeAI(API_KEY);
 const db = firebase.firestore();
 
 firebase.auth().onAuthStateChanged(async (user) => {
