@@ -184,30 +184,57 @@ async function calculateAndSave() {
 }
 
 
-// ================= DASHBOARD =================
+// ================= DASHBOARD (FIXED – CUMULATIVE) =================
 function loadDashboard(user) {
+
+  const consumptionEl = document.getElementById("todayConsumption");
+  const costEl = document.getElementById("todayCost");
+
+  if (!consumptionEl || !costEl) return;
+
+  // ---- TODAY RANGE ----
+  const start = new Date();
+  start.setHours(0, 0, 0, 0);
+
+  const end = new Date();
+  end.setHours(23, 59, 59, 999);
+
+  let totalEnergy = 0;
+  let totalCost = 0;
+
   db.collection("EnergyRecords")
     .where("uid", "==", user.uid)
-    .orderBy("timestamp", "desc")
-    .limit(1)
+    .where("timestamp", ">=", start)
+    .where("timestamp", "<=", end)
     .get()
     .then(snapshot => {
-      const consumptionEl = document.getElementById("todayConsumption");
-      const costEl = document.getElementById("todayCost");
-      
-      if (!snapshot.empty && consumptionEl && costEl) {
-        const d = snapshot.docs[0].data();
-        const energy = d.energy || d.kwh || 0;
-        const cost = d.cost || (energy * 10);
-        consumptionEl.innerText = parseFloat(energy).toFixed(2) + " kWh";
-        costEl.innerText = "₹" + parseFloat(cost).toFixed(2);
-      } else if (consumptionEl && costEl) {
+
+      if (snapshot.empty) {
         consumptionEl.innerText = "0 kWh";
         costEl.innerText = "₹0";
+        return;
       }
+
+      snapshot.forEach(doc => {
+        const d = doc.data();
+
+        const energy = Number(d.energy || d.kwh || 0);
+        const cost = Number(d.cost || (energy * COST_PER_KWH));
+
+        totalEnergy += energy;
+        totalCost += cost;
+      });
+
+      consumptionEl.innerText = totalEnergy.toFixed(2) + " kWh";
+      costEl.innerText = "₹" + totalCost.toFixed(2);
     })
-    .catch(err => console.error("Dashboard error:", err));
+    .catch(err => {
+      console.error("Dashboard cumulative error:", err);
+      consumptionEl.innerText = "0 kWh";
+      costEl.innerText = "₹0";
+    });
 }
+
 
 // ================= HISTORY =================
 function loadHistory(user) {
