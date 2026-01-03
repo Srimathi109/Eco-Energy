@@ -1,20 +1,18 @@
-## GOOGLE TECHSPRINT
-## DEPARTMENT OF INFORMATION TECHNOLOGY
-## SSN COLLEGE OF ENGINEERING
-
-# TEAM NAME : SUNSHINE
-# PROJECT NAME : ECO-ENERGY
+# TEAM NAME : SunShine
+# PROJECT NAME : Eco-Energy
 
 ## Members:
 1.	Srimathi B
 2.	Ramakrishnan MR
 3.	Sundararajan R
 
-# MVP Link: https://ecoenergy-eb878.web.app
+## MVP Link: 
+https://ecoenergy-eb878.web.app
  
-# Github Repository:https://github.com/Srimathi109/Eco-Energy
+## Github Repository:
+https://github.com/Srimathi109/Eco-Energy
 
-# Solution 
+## Solution 
 
 This project presents a smart, scalable energy monitoring and analytics system designed for educational institutions. IoT devices installed in individual laboratories continuously collect energy consumption data and securely transmit it to Google Cloud Firestore in real time. The web-based dashboard allows authenticated users to view daily, weekly, and monthly analytics, filtered by laboratory, enabling precise monitoring and comparison. By integrating Gemini 2.5 Flash, the system converts raw energy data into meaningful summaries, helping users quickly understand usage patterns and inefficiencies. In our opinion, the biggest strength of this solution is its real-time visibility combined with AI-driven insights, making energy management both intelligent and actionable.
 
